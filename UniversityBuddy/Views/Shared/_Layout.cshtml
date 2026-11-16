@@ -1,40 +1,113 @@
-﻿<!DOCTYPE html>
-<html>
+﻿@{
+    var currentController = (ViewContext.RouteData.Values["controller"] ?? "").ToString();
+    var currentAction = (ViewContext.RouteData.Values["action"] ?? "").ToString();
+
+    Func<string, string, bool> IsActive = (c, a) =>
+        string.Equals(currentController, c, System.StringComparison.OrdinalIgnoreCase)
+        && string.Equals(currentAction, a, System.StringComparison.OrdinalIgnoreCase);
+}
+<!DOCTYPE html>
+<html lang="es">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - Mi aplicación ASP.NET</title>
+    <title>@ViewBag.Title - University Buddy</title>
+
+    <script>
+                (function () {
+                    var theme = localStorage.getItem('ub_theme') || 'dark';
+                    document.documentElement.setAttribute('data-theme', theme);
+                })();
+    </script>
+
     @Styles.Render("~/Content/css")
+    <link href="~/Content/sidebar.css" rel="stylesheet" />
     @Scripts.Render("~/bundles/modernizr")
 </head>
 <body>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark">
-        <div class="container">
-            @Html.ActionLink("Nombre de la aplicación", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
-            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" title="Alternar navegación" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li>@Html.ActionLink("Inicio", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Acerca de", "About", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Contacto", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                </ul>
+    <div class="app">
+        <!-- Menú Lateral (Sidebar) -->
+        <aside id="appSidebar" class="sidebar" aria-label="Navegación principal">
+            <div class="sidebar-header">
+                <span class="brand-icon">🎓</span>
+                <span class="brand-text">University Buddy</span>
             </div>
+            <nav class="nav">
+                <a class="nav-link @(IsActive("Home", "Index") ? "active" : "")" href="@Url.Action("Index", "Home")">
+                    <span class="nav-ico">🏠</span>
+                    <span class="nav-text">Inicio</span>
+                </a>
+                <a class="nav-link @(IsActive("Home", "Asignaciones") ? "active" : "")" href="@Url.Action("Asignaciones", "Home")">
+                    <span class="nav-ico">📝</span>
+                    <span class="nav-text">Asignaciones</span>
+                </a>
+                <a class="nav-link @(IsActive("Home", "Horario") ? "active" : "")" href="@Url.Action("Horario", "Home")">
+                    <span class="nav-ico">⏰</span>
+                    <span class="nav-text">Horario</span>
+                </a>
+                <a class="nav-link @(IsActive("Home", "Calendario") ? "active" : "")" href="@Url.Action("Calendario", "Home")">
+                    <span class="nav-ico">📅</span>
+                    <span class="nav-text">Calendario</span>
+                </a>
+                <a class="nav-link @(IsActive("Home", "Materias") ? "active" : "")" href="@Url.Action("Materias", "Home")">
+                    <span class="nav-ico">📚</span>
+                    <span class="nav-text">Materias</span>
+                </a>
+                <a class="nav-link @(IsActive("Home", "SOS") ? "active" : "")" href="@Url.Action("SOS", "Home")">
+                    <span class="nav-ico">🆘</span>
+                    <span class="nav-text">Boton SOS estrés</span>
+                </a>
+                <a class="nav-link @(IsActive("Home", "Pomodoro") ? "active" : "")" href="@Url.Action("Pomodoro", "Home")">
+                    <span class="nav-ico">⏱️</span>
+                    <span class="nav-text">A concentrarnos</span>
+                </a>
+
+                <!-- Opción para Cerrar Sesión -->
+                <div class="nav-divider"></div>
+                <a class="nav-link nav-link-logout" href="@Url.Action("Logout", "Account")">
+                    <span class="nav-ico">🚪</span>
+                    <span class="nav-text">Cerrar sesión</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Fondo para cerrar menú en móviles -->
+        <div id="appOverlay" class="overlay" tabindex="-1" aria-hidden="true"></div>
+
+        <!-- Contenido principal -->
+        <div class="main">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button type="button" id="sidebarToggle" class="icon-btn" title="Mostrar/Ocultar menú">
+                        ☰
+                    </button>
+                    <span class="topbar-title">University Buddy</span>
+                </div>
+
+                <div class="topbar-actions">
+                    <button type="button" id="themeToggle" class="icon-btn" title="Cambiar Modo Claro/Oscuro">
+                        <span id="themeIcon">🌙</span>
+                    </button>
+
+                    <button type="button" id="collapseToggle" class="icon-btn" title="Contraer/Expandir menú">
+                        ⟷
+                    </button>
+                </div>
+            </header>
+
+            <main class="content" role="main">
+                @RenderBody()
+            </main>
+
+            <footer class="footer">
+                <small>&copy; @DateTime.Now.Year - University Buddy</small>
+            </footer>
         </div>
-    </nav>
-    <div class="container body-content">
-        @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - Mi aplicación ASP.NET</p>
-        </footer>
     </div>
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
+    <script src="~/Scripts/sidebar.js"></script>
     @RenderSection("scripts", required: false)
 </body>
 </html>

@@ -13,17 +13,33 @@ namespace UniversityBuddy.Controllers
             return View();
         }
 
-        public ActionResult About()
+        public ActionResult Asignaciones()
         {
-            ViewBag.Message = "Your application description page.";
-
             return View();
         }
 
-        public ActionResult Contact()
+        public ActionResult Horario()
         {
-            ViewBag.Message = "Your contact page.";
+            return View();
+        }
 
+        public ActionResult Calendario()
+        {
+            return View();
+        }
+
+        public ActionResult Materias()
+        {
+            return View();
+        }
+
+        public ActionResult Pomodoro()
+        {
+            return View();
+        }
+
+        public ActionResult SOS()
+        {
             return View();
         }
     }
