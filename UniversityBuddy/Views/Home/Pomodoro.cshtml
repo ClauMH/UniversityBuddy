@@ -1,7 +1,270 @@
-﻿
-@{
-    ViewBag.Title = "Pomodoro";
+﻿@{
+    ViewBag.Title = "A concentrarnos - Reloj Pomodoro";
 }
 
-<h2>Pomodoro</h2>
+<div class="container py-3">
+    <div class="text-center mb-4">
+        <h1 style="font-family:'Gabriola', serif; font-size: 3.2rem; margin-bottom: 0;">A concentrarnos</h1>
+        <p class="text-muted">Técnica Pomodoro: 25 min de trabajo enfocado + 5 min de descanso</p>
+    </div>
 
+    <div class="row justify-content-center align-items-center g-4">
+        <!-- Columna 1: Tarjeta del Reloj y Controles -->
+        <div class="col-md-6 col-lg-5">
+            <div class="card text-center p-4 shadow-lg" style="background: var(--hover); border: 1px solid var(--border); border-radius: 20px;">
+
+                <!-- Badge de Estado Actual -->
+                <div class="mb-3">
+                    <span id="badgeEstado" class="badge bg-primary fs-6 px-3 py-2" style="border-radius: 12px;">
+                        🧠 Modo Concentración
+                    </span>
+                </div>
+
+                <!-- Temporizador Gigante -->
+                <div class="display-1 fw-bold my-3" id="displayTiempo" style="font-family: monospace; letter-spacing: 2px;">
+                    25:00
+                </div>
+
+                <!-- Barra de Progreso -->
+                <div class="progress mb-4" style="height: 10px; background: var(--border); border-radius: 5px;">
+                    <div id="barraProgreso" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 100%;"></div>
+                </div>
+
+                <!-- Botones de Control -->
+                <div class="d-flex justify-content-center gap-2 mb-3">
+                    <button type="button" id="btnIniciarPausar" class="btn btn-primary px-4 py-2">
+                        ▶️ Iniciar
+                    </button>
+                    <button type="button" id="btnReiniciar" class="btn btn-outline-secondary px-3 py-2" title="Reiniciar reloj actual">
+                        🔄 Reiniciar
+                    </button>
+                </div>
+
+                <hr style="border-color: var(--border);" />
+
+                <!-- Botón Finalizar Sesión -->
+                <div>
+                    <button type="button" id="btnTerminarSesion" class="btn btn-danger w-100 py-2">
+                        🏁 Terminar Sesión de Concentración
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna 2: Imagen Dinámica según el Estado -->
+        <div class="col-md-6 col-lg-5 text-center">
+            <div class="card p-3 shadow-sm" style="background: var(--hover); border: 1px solid var(--border); border-radius: 20px;">
+                <!-- Imagen para Concentración -->
+                <div id="contenedorImgConcentracion">
+                    <div class="ratio ratio-16x9 rounded-3 overflow-hidden shadow-sm" style="max-height: 280px;">
+                        <iframe src="https://giphy.com/embed/cgzHlhotPqBPesNYyU" width="480" height="480" style="" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
+                    </div>
+                    <p class="mt-2 text-muted mb-0"><small>📖 ¡Mantén el enfoque en tus estudios!</small></p>
+                </div>
+
+                <!-- Imagen para Descanso (Oculta por defecto) -->
+                <div id="contenedorImgDescanso" style="display: none;">
+                    <div class="ratio ratio-16x9 rounded-3 overflow-hidden shadow-sm" style="max-height: 280px;">
+                        <iframe src="https://giphy.com/embed/R4OS2o3XxlV41D22HO" width="480" height="480" style="" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
+                    </div>
+                    <p class="mt-2 text-muted mb-0"><small>☕ Relájate, estírate y toma un respiro.</small></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= MODALES FLOTANTES ================= -->
+<!-- 1. Modal Cambio a Descanso -->
+<div class="modal fade" id="modalDescanso" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center p-4" style="background: var(--bg-2); border: 2px solid #3b82f6; border-radius: 20px;">
+            <div style="font-size: 3.5rem;">☕✨</div>
+            <h3 style="font-family:'Gabriola', serif; font-size:2.4rem; color:#60a5fa;" class="mt-2">¡Tiempo de Descanso!</h3>
+            <p class="fs-5">Has completado 25 minutos de concentración.<br /><strong>Tómate 5 minutos para relajarte.</strong></p>
+            <button type="button" class="btn btn-primary px-4 mt-2" data-bs-dismiss="modal">Empezar Descanso</button>
+        </div>
+    </div>
+</div>
+
+<!-- 2. Modal Cambio a Concentración -->
+<div class="modal fade" id="modalConcentracion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center p-4" style="background: var(--bg-2); border: 2px solid #10b981; border-radius: 20px;">
+            <div style="font-size: 3.5rem;">🧠⚡</div>
+            <h3 style="font-family:'Gabriola', serif; font-size:2.4rem; color:#34d399;" class="mt-2">¡A concentrarnos de nuevo!</h3>
+            <p class="fs-5">El descanso ha terminado.<br /><strong>¡Volvamos al estudio con energía!</strong></p>
+            <button type="button" class="btn btn-success px-4 mt-2" data-bs-dismiss="modal">¡Listo!</button>
+        </div>
+    </div>
+</div>
+
+<!-- 3. Modal Resumen de Fin de Sesión -->
+<div class="modal fade" id="modalResumen" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center p-4" style="background: var(--bg-2); border: 2px solid #818cf8; border-radius: 20px;">
+            <div style="font-size: 4rem;" class="ratio ratio-16x9 rounded-3 overflow-hidden shadow-sm">
+                <iframe src="https://giphy.com/embed/1Ag2PehjBUCbq7VWTC" width="480" height="480" style="" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
+            </div>
+            <h3 style="font-family:'Gabriola', serif; font-size:2.5rem; color:#818cf8;" class="mt-2">¡Sesión Finalizada!</h3>
+            <p class="fs-5">Excelente trabajo en tu sesión de estudio.</p>
+            <div class="p-3 my-3 rounded-3" style="background: var(--hover); border: 1px solid var(--border);">
+                <span class="text-muted d-block">Tiempo total de concentración activa:</span>
+                <strong id="textoTiempoTotal" class="display-6 style-gabriola text-primary" style="font-family:'Gabriola', serif;">0 minutos y 0 segundos</strong>
+            </div>
+            <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">Aceptar</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Tiempos en segundos (25 min = 1500s, 5 min = 300s)
+            const TIEMPO_CONCENTRACION = 25 * 60;
+            const TIEMPO_DESCANSO = 5 * 60;
+
+            let modoActual = 'concentracion'; // 'concentracion' o 'descanso'
+            let tiempoRestante = TIEMPO_CONCENTRACION;
+            let tiempoTotalConcentradoSegundos = 0; // Acumulador de tiempo real enfocado
+            let temporizador = null;
+            let estaCorriendo = false;
+
+            // Elementos DOM
+            const $displayTiempo = $('#displayTiempo');
+            const $badgeEstado = $('#badgeEstado');
+            const $barraProgreso = $('#barraProgreso');
+            const $btnIniciarPausar = $('#btnIniciarPausar');
+            const $imgConcentracion = $('#contenedorImgConcentracion');
+            const $imgDescanso = $('#contenedorImgDescanso');
+
+            // Formatear segundos a MM:SS
+            function formatearTiempo(segundos) {
+                let m = Math.floor(segundos / 60);
+                let s = segundos % 60;
+                return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+            }
+
+            // Actualizar interfaz
+            function actualizarDisplay() {
+                $displayTiempo.text(formatearTiempo(tiempoRestante));
+
+                let maxTiempo = (modoActual === 'concentracion') ? TIEMPO_CONCENTRACION : TIEMPO_DESCANSO;
+                let porcentaje = (tiempoRestante / maxTiempo) * 100;
+                $barraProgreso.css('width', porcentaje + '%');
+            }
+
+            // Iniciar o Pausar el reloj
+            function conmutarReloj() {
+                if (estaCorriendo) {
+                    // PAUSAR
+                    clearInterval(temporizador);
+                    estaCorriendo = false;
+                    $btnIniciarPausar.html('▶️ Reanudar').removeClass('btn-warning').addClass('btn-primary');
+                } else {
+                    // INICIAR / REANUDAR
+                    estaCorriendo = true;
+                    $btnIniciarPausar.html('⏸️ Pausar').removeClass('btn-primary').addClass('btn-warning');
+
+                    temporizador = setInterval(function () {
+                        tiempoRestante--;
+
+                        // Si estamos en modo concentración, acumular tiempo enfocado
+                        if (modoActual === 'concentracion') {
+                            tiempoTotalConcentradoSegundos++;
+                        }
+
+                        actualizarDisplay();
+
+                        // Cambio de ciclo al llegar a cero
+                        if (tiempoRestante <= 0) {
+                            cambiarModo();
+                        }
+                    }, 1000);
+                }
+            }
+
+            // Cambiar automáticamente entre Concentración y Descanso
+            function cambiarModo() {
+                clearInterval(temporizador);
+                estaCorriendo = false;
+                $btnIniciarPausar.html('▶️ Iniciar').removeClass('btn-warning').addClass('btn-primary');
+
+                if (modoActual === 'concentracion') {
+                    // Pasar a Descanso
+                    modoActual = 'descanso';
+                    tiempoRestante = TIEMPO_DESCANSO;
+
+                    $badgeEstado.html('☕ Modo Descanso').removeClass('bg-primary').addClass('bg-info text-dark');
+                    $barraProgreso.removeClass('bg-primary').addClass('bg-info');
+
+                    $imgConcentracion.fadeOut(300, function () {
+                        $imgDescanso.fadeIn(300);
+                    });
+
+                    // Mostrar alerta flotante de Descanso
+                    new bootstrap.Modal(document.getElementById('modalDescanso')).show();
+                } else {
+                    // Pasar a Concentración
+                    modoActual = 'concentracion';
+                    tiempoRestante = TIEMPO_CONCENTRACION;
+
+                    $badgeEstado.html('🧠 Modo Concentración').removeClass('bg-info text-dark').addClass('bg-primary');
+                    $barraProgreso.removeClass('bg-info').addClass('bg-primary');
+
+                    $imgDescanso.fadeOut(300, function () {
+                        $imgConcentracion.fadeIn(300);
+                    });
+
+                    // Mostrar alerta flotante de Concentración
+                    new bootstrap.Modal(document.getElementById('modalConcentracion')).show();
+                }
+
+                actualizarDisplay();
+            }
+
+            // Reiniciar el período actual
+            $('#btnReiniciar').click(function () {
+                clearInterval(temporizador);
+                estaCorriendo = false;
+                $btnIniciarPausar.html('▶️ Iniciar').removeClass('btn-warning').addClass('btn-primary');
+                tiempoRestante = (modoActual === 'concentracion') ? TIEMPO_CONCENTRACION : TIEMPO_DESCANSO;
+                actualizarDisplay();
+            });
+
+            // Botón Iniciar / Pausar
+            $btnIniciarPausar.click(conmutarReloj);
+
+            // Terminar Sesión de Concentración (Muestra Resumen)
+            $('#btnTerminarSesion').click(function () {
+                if (estaCorriendo) {
+                    conmutarReloj(); // Pausar si estaba corriendo
+                }
+
+                let minutos = Math.floor(tiempoTotalConcentradoSegundos / 60);
+                let segundos = tiempoTotalConcentradoSegundos % 60;
+                let textoResumen = `${minutos} minuto${minutos !== 1 ? 's' : ''} y ${segundos} segundo${segundos !== 1 ? 's' : ''}`;
+
+                $('#textoTiempoTotal').text(textoResumen);
+
+                // Mostrar Modal de Resumen
+                new bootstrap.Modal(document.getElementById('modalResumen')).show();
+            });
+
+            // Resetear contadores cuando se cierra el modal de resumen
+            $('#modalResumen').on('hidden.bs.modal', function () {
+                modoActual = 'concentracion';
+                tiempoRestante = TIEMPO_CONCENTRACION;
+                tiempoTotalConcentradoSegundos = 0;
+                $badgeEstado.html('🧠 Modo Concentración').removeClass('bg-info text-dark').addClass('bg-primary');
+                $barraProgreso.removeClass('bg-info').addClass('bg-primary');
+                $imgDescanso.hide();
+                $imgConcentracion.show();
+                actualizarDisplay();
+            });
+
+            // Inicializar display
+            actualizarDisplay();
+        });
+    </script>
+}
