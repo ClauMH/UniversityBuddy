@@ -1,0 +1,103 @@
+﻿@model UniversityBuddy.Models.Usuario
+
+@{
+    // 1. Desactiva la carga del layout compartido
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Cuenta - University Buddy</title>
+
+    <script>
+                (function () {
+                    var theme = localStorage.getItem('ub_theme') || 'dark';
+                    document.documentElement.setAttribute('data-theme', theme);
+                })();
+    </script>
+
+    @Styles.Render("~/Content/css")
+    <link href="~/Content/sidebar.css" rel="stylesheet" />
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body class="d-flex align-items-center justify-content-center min-vh-100 py-4">
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-7 col-lg-6">
+                <div class="card p-4 shadow-lg" style="background: var(--hover); border: 1px solid var(--border); border-radius: 20px;">
+                    <div class="text-center mb-3">
+                        <h1 style="font-family:'Gabriola', serif; font-size: 2.8rem; margin-bottom:0;" class="text-primary">Crear Cuenta</h1>
+                        <p class="text-muted small">Únete a University Buddy para gestionar tus estudios</p>
+                    </div>
+
+                    @using (Html.BeginForm("Registro", "Account", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger small mb-3" })
+
+                        <div class="row g-3">
+                            <!-- Vista Previa de Fotografía / Inicial -->
+                            <div class="col-12 text-center mb-2">
+                                <div class="d-inline-block position-relative">
+                                    <img id="imgPreview"
+                                         src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='128' height='128'><rect width='100%' height='100%' fill='%236366f1'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-size='64' font-family='Arial' font-weight='bold' fill='white'>U</text></svg>"
+                                         alt="Avatar"
+                                         class="rounded-circle shadow border"
+                                         style="width: 100px; height: 100px; object-fit: cover;" />
+                                </div>
+                                <div class="mt-2">
+                                    <label for="fotoFile" class="btn btn-sm btn-outline-primary">
+                                        📷 Seleccionar Foto de Perfil
+                                    </label>
+                                    <input type="file" id="fotoFile" name="fotoFile" accept="image/*" style="display:none;" />
+                                    <div class="form-text small">Opcional. Si no eliges una, se creará una con tu inicial.</div>
+                                    @Html.ValidationMessage("FotoPerfil", "", new { @class = "text-danger small d-block" })
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                @Html.LabelFor(m => m.NomUsuario, new { @class = "form-label font-weight-bold" })
+                                @Html.TextBoxFor(m => m.NomUsuario, new { @class = "form-control", id = "txtNomUsuario", placeholder = "Ej. juan10", maxlength = "10" })
+                                @Html.ValidationMessageFor(m => m.NomUsuario, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <div class="col-md-6">
+                                @Html.LabelFor(m => m.Nombre, new { @class = "form-label font-weight-bold" })
+                                @Html.TextBoxFor(m => m.Nombre, new { @class = "form-control", id = "txtNombre", placeholder = "Ej. Juan Pérez" })
+                                @Html.ValidationMessageFor(m => m.Nombre, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <div class="col-md-6">
+                                @Html.LabelFor(m => m.Contrasena, new { @class = "form-label font-weight-bold" })
+                                @Html.PasswordFor(m => m.Contrasena, new { @class = "form-control", placeholder = "Mínimo 9 caracteres" })
+                                @Html.ValidationMessageFor(m => m.Contrasena, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <div class="col-md-6">
+                                @Html.LabelFor(m => m.Universidad, new { @class = "form-label font-weight-bold" })
+                                @Html.TextBoxFor(m => m.Universidad, new { @class = "form-control", placeholder = "Ej. UTEC (Opcional)" })
+                                @Html.ValidationMessageFor(m => m.Universidad, "", new { @class = "text-danger small" })
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-success w-100 py-2 font-weight-bold">
+                                ✨ Registrarse
+                            </button>
+                            @Html.ActionLink("Volver al Inicio de Sesión", "Login", "Account", null, new { @class = "btn btn-link w-100 mt-2 text-decoration-none" })
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="~/Scripts/registro.js"></script>
+</body>
+</html>

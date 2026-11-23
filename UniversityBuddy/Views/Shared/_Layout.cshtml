@@ -28,9 +28,22 @@
     <div class="app">
         <!-- Menú Lateral (Sidebar) -->
         <aside id="appSidebar" class="sidebar" aria-label="Navegación principal">
-            <div class="sidebar-header">
-                <span class="brand-icon">🎓</span>
-                <span class="brand-text">University Buddy</span>
+            <div class="sidebar-header d-flex align-items-center gap-2">
+                @if (Session["FotoPerfil"] != null)
+                {
+                    <img src="@Session["FotoPerfil"]" alt="Perfil" class="rounded-circle border" style="width: 38px; height: 38px; object-fit: cover;" />
+                }
+                else
+                {
+                    <span class="brand-icon">🎓</span>
+                }
+                <div class="d-flex flex-column">
+                    <span class="brand-text">University Buddy</span>
+                    @if (Session["Nombre"] != null)
+                    {
+                        <small class="text-muted" style="font-size: 0.75rem;">@Session["Nombre"]</small>
+                    }
+                </div>
             </div>
             <nav class="nav">
                 <a class="nav-link @(IsActive("Home", "Index") ? "active" : "")" href="@Url.Action("Index", "Home")">
