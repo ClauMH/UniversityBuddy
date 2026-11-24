@@ -134,6 +134,7 @@
     </Compile>
     <Compile Include="Models\DbContext.cs" />
     <Compile Include="Models\LoginViewModel.cs" />
+    <Compile Include="Models\Materias.cs" />
     <Compile Include="Models\Usuario.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

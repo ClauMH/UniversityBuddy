@@ -14,6 +14,6 @@ namespace UniversityBuddy.Models
         }
         public DbSet<Usuario> Usuarios { get; set; }
         //public DbSet<Actividades> Actividades { get; set; }
-        //public DbSet<Materias> Materias { get; set; }
+        public DbSet<Materias> Materias { get; set; }
     }
 }
