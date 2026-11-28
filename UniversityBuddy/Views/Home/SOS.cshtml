@@ -2,57 +2,24 @@
     ViewBag.Title = "SOS";
 }
 
-<div class="sos-page">
-    <h1>Momento de calma</h1>
+<h2>Momento de calma</h2>
 
-    <section class="sos-exercises">
-        <button type="button" class="exercise-card active"
-                data-exercise="cuadrada">
-            Respiración cuadrada
-        </button>
-
-        <button type="button" class="exercise-card"
-                data-exercise="478">
-            Relajación 4-7-8
-        </button>
-
-        <button type="button" class="exercise-card"
-                data-exercise="abdominal">
-            Respiración abdominal
-        </button>
-    </section>
-
-    <section class="breathing-card">
-        <div id="breathingCircle" class="breathing-circle">
-            <span id="breathingInstruction">Preparado</span>
-            <strong id="breathingCounter">—</strong>
-        </div>
-
-        <p id="cycleMessage">
-            Siéntate cómodo y suelta los hombros.
-        </p>
-
-        <button type="button" id="startBreathing" class="btn btn-primary">
-            Iniciar
-        </button>
-
-        <button type="button" id="pauseBreathing"
-                class="btn btn-secondary" disabled>
-            Pausar
-        </button>
-
-        <button type="button" id="resetBreathing"
-                class="btn btn-secondary">
-            Reiniciar
-        </button>
-
-        <p>
-            Ciclos completados:
-            <strong id="cycleCount">0</strong>
-        </p>
-    </section>
+<div id="mensaje">
+    Preparado
 </div>
 
-@section scripts {
+<div id="contador">
+    0
+</div>
+
+<button id="btnIniciar">
+    Iniciar
+</button>
+
+<button id="btnReiniciar">
+    Reiniciar
+</button>
+
+@section scripts{
     <script src="~/Scripts/sos.js"></script>
 }

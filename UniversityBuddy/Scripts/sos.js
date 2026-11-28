@@ -1,178 +1,68 @@
-﻿(function () {
-    "use strict";
+﻿document.addEventListener("DOMContentLoaded", function () {
 
-    var selectedExercise = "cuadrada";
-    var phaseIndex = 0;
-    var secondsLeft = 0;
-    var timer = null;
-    var running = false;
-    var cycles = 0;
+    const mensaje = document.getElementById("mensaje");
+    const contador = document.getElementById("contador");
+    const iniciar = document.getElementById("btnIniciar");
+    const reiniciar = document.getElementById("btnReiniciar");
+    
 
-    var exercises = {
-        cuadrada: [
-            ["Inhala", 4, "inhale"],
-            ["Mantén", 4, "hold"],
-            ["Exhala", 4, "exhale"],
-            ["Pausa", 4, "pause"]
-        ],
-        "478": [
-            ["Inhala", 4, "inhale"],
-            ["Mantén", 7, "hold"],
-            ["Exhala", 8, "exhale"]
-        ],
-        abdominal: [
-            ["Inhala profundo", 5, "inhale"],
-            ["Exhala lentamente", 5, "exhale"]
-        ]
-    };
+    let timer = null;
+    let segundos = 4;
+    let ciclos = 0;
+    let maxCiclos = 4;
 
-    var circle = document.getElementById("breathingCircle");
-    var instruction = document.getElementById("breathingInstruction");
-    var counter = document.getElementById("breathingCounter");
-    var cycleMessage = document.getElementById("cycleMessage");
-    var cycleCount = document.getElementById("circleCount");
-    var startButton = document.getElementById("startBreathing");
-    var pauseButton = document.getElementById("pauseBreathing");
-    var resetButton = document.getElementById("resetBreathing");
+    iniciar.addEventListener("click", function () {
 
-    if (!circle || !instruction || !counter || !cycleMessage ||
-        !cycleCount || !startButton || !pauseButton || !resetButton) {
-        return;
-    }
+        clearInterval(timer);
 
-    function clearClasses() {
-        circle.classList.remove("inhale", "hold", "exhale", "pause");
-    }
+        segundos = 4;
+        ciclos = 0;
 
-    function showPhase() {
-        var phase = exercises[selectedExercise][phaseIndex];
+        timer = setInterval(function () {
 
-        clearClasses();
-        circle.classList.add(phase[2]);
-        instruction.textContent = phase[0];
-        counter.textContent = String(secondsLeft);
+            contador.textContent = segundos;
 
-        if (phase[0].indexOf("Exhala") !== -1) {
-            cycleMessage.textContent = "Suelta el aire sin forzar la respiración.";
-        } else if (phase[0] === "Mantén") {
-            cycleMessage.textContent = "Mantén suavemente, sin retener con tensión.";
-        } else {
-            cycleMessage.textContent = "Respira de manera tranquila y natural.";
-        }
-    }
+            if (segundos > 0) {
 
-    function resetExercise() {
-        if (timer !== null) {
-            clearInterval(timer);
-            timer = null;
-        }
+                mensaje.textContent = "Inhala";
 
-        running = false;
-        phaseIndex = 0;
-        secondsLeft = 0;
-        clearClasses();
+                segundos--;
 
-        instruction.textContent = "Preparado";
-        counter.textContent = "—";
-        cycleMessage.textContent = "Siéntate cómodo y suelta los hombros.";
+            } else {
 
-        startButton.textContent = "Iniciar";
-        startButton.disabled = false;
-        pauseButton.textContent = "Pausar";
-        pauseButton.disabled = true;
-    }
+                mensaje.textContent = "Exhala";
 
-    function tick() {
-        secondsLeft--;
+                ciclos++;
 
-        if (secondsLeft > 0) {
-            counter.textContent = String(secondsLeft);
-            return;
-        }
+                if (ciclos >= maxCiclos) {
 
-        var phases = exercises[selectedExercise];
-        phaseIndex++;
+                    clearInterval(timer);
 
-        if (phaseIndex >= phases.length) {
-            phaseIndex = 0;
-            cycles++;
-            cycleCount.textContent = String(cycles);
-        }
+                    mensaje.textContent =
+                        "Ejercicio completado";
 
-        secondsLeft = phases[phaseIndex][1];
-        showPhase();
-    }
+                    contador.textContent = "✔";
 
-    function startBreathing() {
-        if (running) {
-            return;
-        }
+                    return;
+                }
 
-        if (secondsLeft === 0) {
-            phaseIndex = 0;
-            secondsLeft = exercises[selectedExercise][0][1];
-        }
+                segundos = 4;
+            }
 
-        running = true;
-        startButton.textContent = "Ejercicio activo";
-        startButton.disabled = true;
-        pauseButton.disabled = false;
-        pauseButton.textContent = "Pausar";
+        }, 1000);
 
-        showPhase();
-        timer = setInterval(tick, 1000);
-    }
-
-    startButton.addEventListener("click", startBreathing);
-
-    pauseButton.addEventListener("click", function () {
-        if (running) {
-            clearInterval(timer);
-            timer = null;
-            running = false;
-            startButton.disabled = false;
-            startButton.textContent = "Reanudar";
-            pauseButton.textContent = "Reanudar";
-            cycleMessage.textContent = "Ejercicio en pausa.";
-            return;
-        }
-
-        running = true;
-        startButton.disabled = true;
-        startButton.textContent = "Ejercicio activo";
-        pauseButton.textContent = "Pausar";
-        timer = setInterval(tick, 1000);
     });
 
-    startButton.addEventListener("click", function () {
-        if (!running && startButton.textContent === "Reanudar") {
-            running = true;
-            startButton.disabled = true;
-            startButton.textContent = "Ejercicio activo";
-            pauseButton.textContent = "Pausar";
-            timer = setInterval(tick, 1000);
-        }
+    reiniciar.addEventListener("click", function () {
+
+        clearInterval(timer);
+
+        mensaje.textContent = "Preparado";
+        contador.textContent = "0";
+
+        ciclos = 0;
+        segundos = 4;
+
     });
 
-    resetButton.addEventListener("click", function () {
-        cycles = 0;
-        cycleCount.textContent = "0";
-        resetExercise();
-    });
-
-    document.querySelectorAll(".exercise-card").forEach(function (card) {
-        card.addEventListener("click", function () {
-            var cards = document.querySelectorAll(".exercise-card");
-
-            cards.forEach(function (item) {
-                item.classList.remove("active");
-            });
-
-            card.classList.add("active");
-            selectedExercise = card.getAttribute("data-exercise") || "cuadrada";
-            cycles = 0;
-            cycleCount.textContent = "0";
-            resetExercise();
-        });
-    });
-})();
+});;
