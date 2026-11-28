@@ -4,4 +4,28 @@
 }
 
 <h2>Horario</h2>
+<section class="clock-app">
+    <h2 id="current-time">00:00:00</h2>
 
+    <form id="timer-form">
+        <input id="timer-minutes" type="number" min="1" value="5">
+        <button type="button" id="timer-start">Iniciar</button>
+        <button type="button" id="timer-stop">Detener</button>
+    </form>
+
+    <h3 id="timer-display">05:00</h3>
+
+    <form id="alarm-form">
+        <input id="alarm-time" type="time" required>
+        <input id="alarm-label" type="text" placeholder="Nombre de la alarma">
+        <button type="submit">Agregar alarma</button>
+    </form>
+
+    <ul id="alarm-list"></ul>
+</section>
+<script src="~/Scripts/horario.js"></script>
+@Scripts.Render("~/bundles/jquery")
+
+<script src="~/Scripts/horario.js"></script>
+<h2 id="current-time">00:00:00</h2>
+<script src="~/Scripts/horario.js"></script>

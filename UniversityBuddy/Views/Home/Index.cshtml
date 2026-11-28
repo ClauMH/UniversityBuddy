@@ -1,33 +1,166 @@
-﻿@{
-    ViewBag.Title = "Home Page";
+﻿@model UniversityBuddy.Models.DashboardViewModel
+
+@{
+    ViewBag.Title = "Inicio - Dashboard";
 }
 
-<main>
-    <section class="row" aria-labelledby="aspnetTitle">
-        <h1 id="title">ASP.NET</h1>
-        <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-        <p><a href="https://asp.net" class="btn btn-primary btn-md">Learn more &raquo;</a></p>
-    </section>
+<div class="container py-3">
+    <!-- 1. Encabezado con Saludo y Botones de Navegación -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="p-4 rounded-3 shadow-sm d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3"
+                 style="background: var(--hover); border: 1px solid var(--border); border-radius: 20px;">
+                <div>
+                    <h1 style="font-family: 'Gabriola', serif; font-size: 3.2rem; margin-bottom: 0;" class="text-primary">
+                        ¡Hola de nuevo, @Model.NombreUsuario! 🎓
+                    </h1>
+                    <p class="text-muted mb-0">Gestión de actividades y materias para tu ciclo académico.</p>
+                </div>
 
-    <div class="row">
-        <section class="col-md-4" aria-labelledby="gettingStartedTitle">
-            <h2 id="gettingStartedTitle">Getting started</h2>
-            <p>
-                ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-                enables a clean separation of concerns and gives you full control over markup
-                for enjoyable, agile development.
-            </p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
-        </section>
-        <section class="col-md-4" aria-labelledby="librariesTitle">
-            <h2 id="librariesTitle">Get more libraries</h2>
-            <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
-        </section>
-        <section class="col-md-4" aria-labelledby="hostingTitle">
-            <h2 id="hostingTitle">Web Hosting</h2>
-            <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
-        </section>
+                <!-- Botones de Acción Rápida (Redirigen a las vistas dentro de Home) -->
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="@Url.Action("Actividades", "Home")" class="btn btn-primary px-3 py-2 shadow-sm font-weight-bold">
+                        📋 Ir a Actividades
+                    </a>
+                    <a href="@Url.Action("Materias", "Home")" class="btn btn-outline-primary px-3 py-2 shadow-sm font-weight-bold">
+                        📖 Ir a Materias
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
-</main>
+
+    <div class="row g-4">
+        <!-- 2. Ventana de Actividades Próximas a Vencer (Top 3) -->
+        <div class="col-lg-5">
+            <div class="card h-100 shadow-sm p-3" style="background: var(--hover); border: 1px solid var(--border); border-radius: 20px;">
+                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center px-2">
+                    <h3 style="font-family: 'Gabriola', serif; font-size: 2.2rem;" class="mb-0 text-danger">
+                        ⏳ Próximas a Vencer
+                    </h3>
+                    <span class="badge bg-danger rounded-pill">Top 3</span>
+                </div>
+
+                <div class="card-body px-2">
+                    @if (Model.ActividadesProximas != null && Model.ActividadesProximas.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var act in Model.ActividadesProximas)
+                            {
+                                var diasRestantes = (act.Fecha.Date - DateTime.Today).Days;
+                                string badgeColor = diasRestantes <= 2 ? "bg-danger" : (diasRestantes <= 5 ? "bg-warning text-dark" : "bg-info text-dark");
+                                string textoDias = diasRestantes < 0 ? "Vencida" : (diasRestantes == 0 ? "Hoy" : diasRestantes + " días");
+                                string descripcionTexto = string.IsNullOrEmpty(act.Descripcion) ? "Sin descripción" : act.Descripcion;
+                                string nombreMateria = act.Materias != null ? act.Materias.Nombre : "Sin materia";
+                                string fechaTexto = act.Fecha.ToString("dd/MM/yyyy");
+
+                                <div class="list-group-item bg-transparent border-bottom px-0 py-3">
+                                    <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+                                        <h6 class="fw-bold mb-0">@act.Nombre</h6>
+                                        <span class="badge @badgeColor">
+                                            @textoDias
+                                        </span>
+                                    </div>
+                                    <p class="mb-1 text-muted small">@descripcionTexto</p>
+                                    <div class="d-flex justify-content-between align-items-center small text-secondary mt-2">
+                                        <span>📘 <strong>@nombreMateria</strong></span>
+                                        <span>📅 @fechaTexto</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4 text-muted">
+                            <span style="font-size: 3rem;">🎉</span>
+                            <p class="mt-2 mb-3">¡No tienes actividades pendientes próximas a vencer!</p>
+                            <a href="@Url.Action("Actividades", "Home")" class="btn btn-sm btn-outline-success">
+                                ➕ Ver Actividades
+                            </a>
+                        </div>
+                    }
+                </div>
+
+                <div class="card-footer bg-transparent border-0 text-center pt-2">
+                    <a href="@Url.Action("Actividades", "Home")" class="btn btn-sm btn-outline-primary w-100 py-2">
+                        📋 Ver todas las actividades →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Materias que está Cursando -->
+        <div class="col-lg-7">
+            <div class="card h-100 shadow-sm p-3" style="background: var(--hover); border: 1px solid var(--border); border-radius: 20px;">
+                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center px-2">
+                    <h3 style="font-family: 'Gabriola', serif; font-size: 2.2rem;" class="mb-0 text-primary">
+                        📚 Mis Materias (@(Model.Materias != null ? Model.Materias.Count : 0))
+                    </h3>
+                    <a href="@Url.Action("Materias", "Home")" class="btn btn-sm btn-link text-decoration-none">
+                        Ver catálogo →
+                    </a>
+                </div>
+
+                <div class="card-body px-2">
+                    @if (Model.Materias != null && Model.Materias.Any())
+                    {
+                        <div class="row row-cols-1 row-cols-md-2 g-3">
+                            @foreach (var mat in Model.Materias)
+                            {
+                                string aulaTexto = mat.Aula ?? "Sin aula";
+                                string maestroTexto = mat.Maestro ?? "No asignado";
+                                string inicialNombre = !string.IsNullOrEmpty(mat.Nombre) ? mat.Nombre.Substring(0, 1).ToUpper() : "M";
+
+                                <div class="col">
+                                    <div class="card h-100 p-3 shadow-sm border" style="background: var(--bg-2); border-radius: 14px;">
+                                        <div class="d-flex align-items-center gap-3 mb-2">
+                                            @if (!string.IsNullOrEmpty(mat.ImagenMateria))
+                                            {
+                                                <img src="@Url.Content(mat.ImagenMateria)" alt="@mat.Nombre" class="rounded" style="width: 45px; height: 45px; object-fit: cover;" />
+                                            }
+                                            else
+                                            {
+                                                <div class="rounded d-flex align-items-center justify-content-center bg-primary text-white font-weight-bold" style="width: 45px; height: 45px; font-size: 1.2rem;">
+                                                    @inicialNombre
+                                                </div>
+                                            }
+                                            <div class="overflow-hidden">
+                                                <h6 class="fw-bold mb-0 text-truncate">@mat.Nombre</h6>
+                                                <small class="text-muted d-block">🏫 @aulaTexto</small>
+                                            </div>
+                                        </div>
+                                        <div class="small text-muted mt-2 border-top pt-2">
+                                            <div>👨‍🏫 <strong>Docente:</strong> @maestroTexto</div>
+                                            @if (mat.Horario.HasValue)
+                                            {
+                                                string horarioFormateado = mat.Horario.Value.ToString(@"hh\:mm");
+                                                <div>⏰ <strong>Horario:</strong> @horarioFormateado</div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4 text-muted">
+                            <span style="font-size: 3rem;">📖</span>
+                            <p class="mt-2 mb-3">Aún no has registrado ninguna materia.</p>
+                            <a href="@Url.Action("Materias", "Home")" class="btn btn-sm btn-outline-primary">
+                                ➕ Ir a Materias
+                            </a>
+                        </div>
+                    }
+                </div>
+
+                <div class="card-footer bg-transparent border-0 text-center pt-2">
+                    <a href="@Url.Action("Materias", "Home")" class="btn btn-sm btn-outline-secondary w-100 py-2">
+                        ⚙️ Administrar materias →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

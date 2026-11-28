@@ -50,17 +50,13 @@
                     <span class="nav-ico">🏠</span>
                     <span class="nav-text">Inicio</span>
                 </a>
-                <a class="nav-link @(IsActive("Home", "Asignaciones") ? "active" : "")" href="@Url.Action("Asignaciones", "Home")">
+                <a class="nav-link @(IsActive("Home", "Actividades") ? "active" : "")" href="@Url.Action("Actividades", "Home")">
                     <span class="nav-ico">📝</span>
-                    <span class="nav-text">Asignaciones</span>
+                    <span class="nav-text">Actividades</span>
                 </a>
                 <a class="nav-link @(IsActive("Home", "Horario") ? "active" : "")" href="@Url.Action("Horario", "Home")">
                     <span class="nav-ico">⏰</span>
-                    <span class="nav-text">Horario</span>
-                </a>
-                <a class="nav-link @(IsActive("Home", "Calendario") ? "active" : "")" href="@Url.Action("Calendario", "Home")">
-                    <span class="nav-ico">📅</span>
-                    <span class="nav-text">Calendario</span>
+                    <span class="nav-text">Horario de Estudios</span>
                 </a>
                 <a class="nav-link @(IsActive("Home", "Materias") ? "active" : "")" href="@Url.Action("Materias", "Home")">
                     <span class="nav-ico">📚</span>

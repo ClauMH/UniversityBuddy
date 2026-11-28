@@ -1,0 +1,268 @@
+﻿@model IEnumerable<UniversityBuddy.Models.Actividades>
+
+@{
+    ViewBag.Title = "Mis Actividades";
+    bool tieneMaterias = ViewBag.TieneMaterias != null && (bool)ViewBag.TieneMaterias;
+    string fechaHoy = DateTime.Today.ToString("yyyy-MM-dd");
+    SelectList listaMaterias = ViewBag.Materias as SelectList;
+}
+
+<div class="container py-4">
+    <!-- Encabezado Principal -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+        <div>
+            <h1 style="font-family: 'Gabriola', serif; font-size: 3rem; margin-bottom: 0;" class="text-primary">
+                📋 Mis Actividades
+            </h1>
+            <p class="text-muted mb-0">Gestiona tus tareas, exámenes y proyectos académicos.</p>
+        </div>
+        <div>
+            <button type="button" class="btn btn-primary shadow-sm font-weight-bold py-2 px-3" onclick="abrirModalCrear()">
+                ➕ Nueva Actividad
+            </button>
+        </div>
+    </div>
+
+    <!-- Tabla Principal de Actividades -->
+    <div class="card shadow-sm p-3" style="background: var(--hover); border: 1px solid var(--border); border-radius: 16px;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="text-center" style="width: 70px;">¿Hecha?</th>
+                        <th>Nombre</th>
+                        <th>Categoría</th>
+                        <th>Materia</th>
+                        <th>Fecha de Entrega</th>
+                        <th>Estado</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            bool estaHecha = item.Estado == "Completada";
+                            string badgeEstado = item.Estado == "Completada" ? "bg-success" : (item.Estado == "No hecha" ? "bg-danger" : "bg-warning text-dark");
+                            string claseFila = estaHecha ? "table-light text-muted" : "";
+                            string claseTachado = estaHecha ? "text-decoration-line-through" : "";
+                            string nombreMateria = item.Materias != null ? item.Materias.Nombre : "Sin materia";
+                            string fechaFormateada = item.Fecha.ToString("dd/MM/yyyy");
+
+                            <tr class="@claseFila">
+                                <!-- Checkbox Formulario Nativo (Envío Inmediato "Sí o Sí") -->
+                                <td class="text-center">
+                                    @using (Html.BeginForm("CambiarEstadoDirecto", "Home", FormMethod.Post, new { @class = "d-inline" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@item.ID_Actividad" />
+                                        <input type="checkbox"
+                                               class="form-check-input"
+                                               style="width: 22px; height: 22px; cursor: pointer;"
+                                               @(estaHecha ? "checked" : "")
+                                               onchange="this.form.submit()" />
+                                    }
+                                </td>
+
+                                <!-- Nombre de la actividad -->
+                                <td class="fw-bold @claseTachado" id="nombre-@item.ID_Actividad">
+                                    @item.Nombre
+                                </td>
+
+                                <td>
+                                    <span class="badge bg-secondary">@item.Categoria</span>
+                                </td>
+
+                                <td>
+                                    📘 @nombreMateria
+                                </td>
+
+                                <td>
+                                    📅 @fechaFormateada
+                                </td>
+
+                                <td>
+                                    <span class="badge @badgeEstado">
+                                        @item.Estado
+                                    </span>
+                                </td>
+
+                                <td class="text-end">
+                                    <button type="button" class="btn btn-sm btn-outline-info me-1" onclick="abrirModalEditar(@item.ID_Actividad)">
+                                        ✏️ Editar
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar(@item.ID_Actividad)">
+                                        🗑️ Eliminar
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <span style="font-size: 3rem;">📌</span>
+                                <p class="mt-2 mb-0 fw-bold">No tienes actividades registradas.</p>
+                                <small>Haz clic en "Nueva Actividad" para comenzar tu seguimiento.</small>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- MODAL ÚNICO DE ACTIVIDAD (UBICADO FUERA DEL CONTAINER CON FONDO SÓLIDO) -->
+<!-- ========================================================================= -->
+<div class="modal fade" id="modalActividad" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-white" style="background-color: var(--bg-card, #2b2b36); border: 1px solid var(--border); border-radius: 20px;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-primary" id="modalTitulo">Nueva Actividad</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            @using (Html.BeginForm("GuardarActividad", "Home", FormMethod.Post, new { id = "formActividad" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    @Html.ValidationSummary(false, "", new { @class = "text-danger small mb-3" })
+
+                    <input type="hidden" id="ID_Actividad" name="ID_Actividad" value="0" />
+
+                    <div class="mb-3">
+                        <label for="Nombre" class="form-label fw-bold">Nombre de la Actividad</label>
+                        <input type="text" id="Nombre" name="Nombre" class="form-control" required maxlength="100" placeholder="Ej. Tarea 1 de Programación" />
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label for="Categoria" class="form-label fw-bold">Categoría</label>
+                            <select id="Categoria" name="Categoria" class="form-select" required>
+                                <option value="Tarea">Tarea</option>
+                                <option value="Examen">Examen</option>
+                                <option value="Proyecto">Proyecto</option>
+                                <option value="Laboratorio">Laboratorio</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="ID_Materia" class="form-label fw-bold">Materia</label>
+                            @if (tieneMaterias)
+                            {
+                                @Html.DropDownList("ID_Materia", listaMaterias, "-- Seleccionar Materia --", new { @class = "form-select", id = "ID_Materia", required = "required" })
+                            }
+                            else
+                            {
+                                <div class="alert alert-warning p-2 small mb-0 border">
+                                    ⚠️ No tienes materias registradas.<br />
+                                    <a href="@Url.Action("Create", "Materias")" class="fw-bold text-dark text-decoration-underline">
+                                        ➕ Registrar una materia
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="Fecha" class="form-label fw-bold">Fecha de Entrega</label>
+                        <input type="date" id="Fecha" name="Fecha" class="form-control" required min="@fechaHoy" />
+                        <div class="form-text text-muted small">La fecha no puede ser menor al día de hoy.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="Descripcion" class="form-label fw-bold">Descripción (Opcional)</label>
+                        <textarea id="Descripcion" name="Descripcion" class="form-control" rows="3" maxlength="300" placeholder="Escribe instrucciones o detalles adicionales..."></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    @if (tieneMaterias)
+                    {
+                        <button type="submit" class="btn btn-primary fw-bold px-4" id="btnGuardar">Guardar</button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-primary fw-bold px-4" id="btnGuardar" disabled="disabled">Guardar</button>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- FORMULARIO OCULTO CON TOKEN PARA ELIMINACIÓN -->
+@using (Html.BeginForm("EliminarActividad", "Home", FormMethod.Post, new { id = "formEliminar" }))
+{
+    @Html.AntiForgeryToken()
+    <input type="hidden" id="idEliminar" name="id" value="" />
+}
+
+@section Scripts {
+    <script>
+        var modalElement = document.getElementById('modalActividad');
+        var myModal = new bootstrap.Modal(modalElement);
+        var hoy = '@fechaHoy';
+
+        // 1. Abrir Modal para CREAR
+        function abrirModalCrear() {
+            document.getElementById('modalTitulo').innerText = 'Nueva Actividad';
+            document.getElementById('ID_Actividad').value = '0';
+            document.getElementById('Nombre').value = '';
+            document.getElementById('Categoria').value = 'Tarea';
+
+            var selectMateria = document.getElementById('ID_Materia');
+            if (selectMateria) selectMateria.value = '';
+
+            var inputFecha = document.getElementById('Fecha');
+            inputFecha.value = hoy;
+            inputFecha.min = hoy;
+
+            document.getElementById('Descripcion').value = '';
+
+            myModal.show();
+        }
+
+        // 2. Abrir Modal para EDITAR
+        function abrirModalEditar(id) {
+            fetch('@Url.Action("ObtenerActividad", "Home")?id=' + id)
+                .then(response => response.json())
+                .then(data => {
+                    if (data) {
+                        document.getElementById('modalTitulo').innerText = 'Editar Actividad';
+                        document.getElementById('ID_Actividad').value = data.ID_Actividad;
+                        document.getElementById('Nombre').value = data.Nombre;
+                        document.getElementById('Categoria').value = data.Categoria;
+
+                        var selectMateria = document.getElementById('ID_Materia');
+                        if (selectMateria) selectMateria.value = data.ID_Materia;
+
+                        var inputFecha = document.getElementById('Fecha');
+                        inputFecha.value = data.Fecha;
+                        inputFecha.removeAttribute('min');
+
+                        document.getElementById('Descripcion').value = data.Descripcion || '';
+
+                        myModal.show();
+                    }
+                })
+                .catch(err => console.error("Error al obtener la actividad:", err));
+        }
+
+        // 3. Confirmación de ELIMINACIÓN
+        function confirmarEliminar(id) {
+            var elem = document.getElementById('nombre-' + id);
+            var nombre = elem ? elem.innerText.trim() : 'esta actividad';
+
+            if (confirm('¿Estás seguro de que deseas eliminar la actividad "' + nombre + '"?')) {
+                document.getElementById('idEliminar').value = id;
+                document.getElementById('formEliminar').submit();
+            }
+        }
+    </script>
+}
